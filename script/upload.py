@@ -219,8 +219,10 @@ def upload_electron(github, release, file_path):
       for asset in release['assets']:
         if asset['name'] == filename:
           github.repos(ELECTRON_REPO).releases.assets(asset['id']).delete()
-    except Exception:
-      pass
+    except Exception as e:
+      print 'Exception deleting %s from Github:' % \
+          (filename)
+      print(e)
 
   # Upload the file.
   with open(file_path, 'rb') as f:
@@ -243,8 +245,13 @@ def upload_io_to_github(github, release, name, io, content_type):
       (name)
   params = {'name': name}
   headers = {'Content-Type': content_type}
-  github.repos(ELECTRON_REPO).releases(release['id']).assets.post(
-      params=params, headers=headers, data=io, verify=False)
+  try:
+    github.repos(ELECTRON_REPO).releases(release['id']).assets.post(
+        params=params, headers=headers, data=io, verify=False)
+  except Exception as e:
+    print 'Exception uploading %s to Github:' % \
+        (name)
+    print(e)
 
 
 def upload_sha256_checksum(version, file_path):
